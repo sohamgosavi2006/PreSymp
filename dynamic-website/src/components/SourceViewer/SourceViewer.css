@@ -1,0 +1,72 @@
+/* everything about the source viewer and the report pages it shows. --marker may be used here and nowhere else */
+/* source viewer */
+.viewer { position: fixed; top: 0; right: 0; bottom: 30px; width: 45%; min-width: 520px; z-index: 41; background: var(--panel); display: flex; flex-direction: column; border-left: 1px solid var(--ink); animation: slide var(--ease); }
+.viewer:focus { outline: none; }
+.vhead { display: flex; flex-direction: column; gap: 6px; padding: 8px 16px 10px; border-bottom: 1px solid var(--rule); font-size: 15px; background: var(--paper); }
+.vrow { display: flex; justify-content: space-between; align-items: center; gap: 6px 12px; flex-wrap: wrap; min-width: 0; }
+.vrow:first-child { flex-wrap: nowrap; }
+.vtitle { font-size: 17px; color: var(--ink); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vhead .btn.quiet { padding: 2px 6px; flex: none; }
+.vmeta { color: var(--body); }
+.vctl { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.vctl .seg button { padding: 3px 9px; font-size: 14px; }
+.vctl .btn { padding: 3px 10px; }
+.vbody { flex: 1; overflow: auto; padding: 18px 18px 38vh; scrollbar-gutter: stable; }
+.vpage { max-width: none; }
+.vfoot { padding: 10px 16px; border-top: 1px solid var(--rule); font-size: 15px; font-weight: 700; background: var(--panel); display: flex; flex-wrap: wrap; align-items: center; gap: 4px 20px; color: var(--ink); }
+.vfoot .ok, .vfoot .conv { color: var(--body); font-weight: 400; }
+.vfoot .btn.quiet { padding: 0; font-size: 15px; }
+@keyframes slide { 0% { transform: translate(28px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* the marker: the one place the highlighter yellow is used. it multiplies, so the printed text stays dark under it.
+   one pulse when a page opens, none when motion is reduced */
+@keyframes mkrow { 0% { background-color: transparent; } 35% { background-color: var(--marker); } 60% { background-color: rgba(255, 228, 92, 0.55); } 100% { background-color: var(--marker); } }
+@keyframes mkbox { 0% { opacity: 0; transform: scale(1.12); } 40% { opacity: 1; transform: scale(1.04); } 100% { opacity: 1; transform: none; } }
+
+.paper { position: relative; isolation: isolate; background: var(--card); color: var(--ink); width: 100%; max-width: 640px; margin: 0 auto; padding: 22px 26px 26px; font-size: 14px; line-height: 1.45; border: 1px solid var(--rule); }
+.paper.labB { font-family: Georgia, 'Times New Roman', serif; }
+.rhead { display: flex; justify-content: space-between; gap: 16px; border-bottom: 2px solid var(--ink); padding-bottom: 8px; }
+.rtitle { font: 700 18px var(--sans); color: var(--ink); }
+.paper.labB .rtitle { font-family: Georgia, serif; }
+.rhead p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+.rhead dl { display: grid; grid-template-columns: auto auto; gap: 0 10px; margin: 0; font-size: 13px; }
+.rhead dt { color: var(--muted); }
+.rhead dd { margin: 0; }
+.rpat { display: flex; flex-wrap: wrap; gap: 2px 18px; padding: 8px 0; border-bottom: 1px solid var(--rule); font-size: 13px; }
+.rsec { margin-top: 12px; }
+.rsec h4 { font: 700 13px var(--sans); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+.rsec table { width: 100%; border-collapse: separate; border-spacing: 0; }
+.rsec th { text-align: left; font-weight: 400; color: var(--muted); font-size: 13px; padding: 2px 6px; border-bottom: 1px solid var(--rule); }
+.rsec td { padding: 3px 6px; border-bottom: 1px solid var(--panel); }
+.rsec td.r { font-variant-numeric: tabular-nums; font-weight: 700; }
+.rsec tr.hl td { background-color: var(--marker); mix-blend-mode: multiply; box-shadow: inset 0 1px 0 rgba(26, 26, 26, 0.3), inset 0 -1px 0 rgba(26, 26, 26, 0.3); animation: mkrow 0.9s ease-out 1; }
+.two { columns: 2; column-gap: 24px; }
+.two .rsec { break-inside: avoid; }
+.brow { display: grid; grid-template-columns: 52px 1fr auto auto; gap: 8px; padding: 3px 4px; border-bottom: 1px solid var(--panel); font-size: 13.5px; }
+.brow .bu { color: var(--muted); }
+.brow .br { font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+.brow .bf { color: var(--muted); min-width: 64px; }
+.brow.hl { background-color: var(--marker); mix-blend-mode: multiply; box-shadow: inset 0 0 0 1px rgba(26, 26, 26, 0.3); animation: mkrow 0.9s ease-out 1; }
+.brow.note { grid-template-columns: 1fr 1fr; }
+.rfoot { margin-top: 18px; color: var(--muted); font-size: 13px; }
+.rfoot p { margin: 2px 0; }
+.paper.scan { filter: contrast(1.12) brightness(0.95); transform: rotate(0.4deg); }
+.grain { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.16; mix-blend-mode: multiply; pointer-events: none; }
+.ocr { position: relative; outline: 1px solid var(--rule); outline-offset: 1px; }
+.ocr:hover:after { content: attr(data-tip); position: absolute; left: 0; bottom: 120%; background: var(--ink); color: var(--paper); font: 400 12px var(--sans); padding: 2px 6px; white-space: nowrap; z-index: 3; border-radius: 3px; }
+.ocr-hit { outline: 1px solid rgba(26, 26, 26, 0.3); background-color: var(--marker); mix-blend-mode: multiply; }
+
+/* a real page: the pdf canvas or the photo, with the marker drawn over it */
+.pdfpage { position: relative; isolation: isolate; background: var(--card); border: 1px solid var(--rule); box-sizing: border-box; line-height: 0; overflow: hidden; }
+.pdfpage .pdfcv, .pdfpage canvas.pdfcv { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; display: block; }
+.thumb .pdfpage { border: 0; }
+.pdfstrip { position: relative; overflow: hidden; border: 1px solid var(--rule); background: var(--card); }
+.pdfstrip .pdfpage { border: 0; }
+.pgmsg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 16px; line-height: 1.4; font-size: 15px; color: var(--muted); background: var(--card); }
+.pgmsg.err { color: var(--ink); font-weight: 700; }
+.pdfhl { position: absolute; background: var(--marker); mix-blend-mode: multiply; outline: 1px solid rgba(26, 26, 26, 0.3); pointer-events: none; animation: mkbox 0.7s ease-out 1; }
+.pdfhl-in { position: absolute; inset: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rsec tr.hl td, .brow.hl, .pdfhl { animation: none; }
+}

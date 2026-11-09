@@ -1,0 +1,31 @@
+/* Today: the front-desk table. tokens only */
+.tday-bar { justify-content: space-between; }
+.tday-bar .chips-in { display: flex; flex-wrap: wrap; gap: 8px; }
+.tday-sort { display: flex; align-items: center; gap: 8px; }
+.tday-sort .lab { margin: 0; }
+.tday-sort .seg { background: var(--card); }
+
+.drow.trow { grid-template-columns: 52px minmax(190px, 1.25fr) 112px minmax(170px, 1.3fr) minmax(130px, 1fr) 232px; gap: 16px; padding: 12px 24px; align-items: center; }
+.drow.trow.head { padding: 10px 24px; }
+.drow.trow > span:last-child { white-space: initial; }
+.drow.trow .tk b { font-size: 20px; }
+
+.drow.trow:not(.head) { cursor: pointer; }
+.drow.trow:not(.head):hover { background: var(--paper); }
+.drow.trow .who a { text-decoration: none; display: block; }
+.drow.trow .who a:hover b { text-decoration: underline; }
+.drow.trow .who small { display: block; line-height: 1.4; }
+.drow.trow .tests small { display: block; font-size: 14px; }
+.drow.trow .acts { display: flex; flex-wrap: wrap; gap: 6px; }
+.btn.sm { padding: 3px 10px; font-size: 14px; line-height: 1.5; }
+.tday-empty { padding: 20px 24px; }
+.md-what legend { padding: 0; margin-bottom: 8px; }
+.md-what label { display: flex; gap: 10px; align-items: baseline; }
+.md-date { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; margin: 12px 0 0; }
+.md-date .lab { margin: 0; }
+
+@media (max-width: 900px) {
+  .tday-bar { align-items: flex-start; }
+  .drow.trow { grid-template-columns: 1fr; gap: 6px; padding: 16px; }
+}
+.drow.trow .st-txt { white-space: nowrap; }

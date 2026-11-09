@@ -1,0 +1,22 @@
+/* only the follow-up card prints. it has its own named A5 page, so the sample sheets and every other print keep the default page size */
+@page card { size: A5; margin: 10mm; }
+
+@media print {
+  html, body { background: var(--card); color: var(--ink); }
+  /* everything but the page content: banner, top bar, status bar, viewer, intake, tour, toasts */
+  .app > :not(main), .noprint, .cardside, .banner, .topbar, .statusbar, .tour, .ring, .toast, .viewer, .dim { display: none !important; }
+  .app { padding: 0; min-height: 0; }
+  .page { padding: 0; max-width: none; margin: 0; }
+  .cardwrap, .cardwrap.cardpage { display: block; }
+  .cardwrap .fcard.fsheet {
+    page: card;
+    width: 128mm; max-width: none; min-height: 186mm; margin: 0; padding: 7mm 8mm;
+    background: var(--card); color: var(--ink);
+    border: 0.75pt solid var(--ink); border-radius: 0; box-shadow: none;
+    break-inside: avoid; break-after: avoid; overflow: visible;
+    -webkit-print-color-adjust: economy; print-color-adjust: economy;
+  }
+  .fcard.fsheet, .fcard.fsheet * { background: none !important; box-shadow: none !important; text-shadow: none !important; color: var(--ink) !important; }
+  .cardwrap .fcard.fsheet header { border-bottom: 0.75pt solid var(--ink); }
+  .cardwrap .fcard.fsheet h3 { border-bottom: 0.5pt solid var(--ink); }
+}

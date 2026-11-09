@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: presymp-kidney-map
+    runtime: node
+    plan: free
+    rootDir: dynamic-website
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: SARVAM_API_KEY
+        sync: false

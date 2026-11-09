@@ -1,0 +1,28 @@
+.voice-panel { margin: 18px 0; }
+.voice-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.voice-heading time { color: var(--muted); font-size: 13px; }
+.voice-tag { background: var(--accent-tint); color: var(--accent); border-radius: 20px; padding: 3px 10px; font-size: 13px; font-weight: 700; }
+.voice-recorder { padding: 12px 0; }
+.voice-consent { display: flex; align-items: flex-start; gap: 8px; font-size: 14px; margin: 12px 0 8px; }
+.voice-consent input { flex: none; margin-top: 4px; }
+.voice-options { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.voice-options label { display: grid; gap: 4px; font-size: 13px; flex: 1; min-width: 140px; }
+.cardside .voice-consent { font-weight: 400; align-items: flex-start; }
+.voice-options select { width: 100%; }
+.voice-mic { display: inline-flex; gap: 8px; align-items: center; }
+.voice-recorder audio, .voice-listen audio, .saved-voice audio { display: block; width: 100%; max-width: 480px; margin-top: 12px; }
+.voice-text { display: grid; gap: 5px; margin-top: 14px; font-size: 14px; }
+.voice-text textarea { width: 100%; resize: vertical; }
+.voice-error { color: var(--ink); border-left: 3px solid var(--accent); background: var(--accent-tint); padding: 10px 12px; font-size: 14px; }
+.voice-transcript { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14px; }
+.saved-voices { list-style: none; margin: 0; padding: 0; }
+.saved-voice { border-top: 1px solid var(--rule); padding: 14px 0; }
+.voice-listen { margin-top: 14px; padding-top: 6px; border-top: 1px solid var(--rule); }
+.voice-search { position: relative; }
+.voice-search-button { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid var(--line); background: var(--ink); color: var(--paper); border-radius: 6px; cursor: pointer; }
+.voice-search-popover { position: absolute; z-index: 40; top: 42px; left: -290px; width: min(480px, calc(100vw - 32px)); max-height: calc(100vh - 150px); overflow-y: auto; border: 1px solid var(--line); border-radius: 12px; padding: 20px; background: var(--card); color: var(--ink); box-shadow: 0 8px 28px rgba(26, 26, 26, 0.15); }
+.voice-search-popover .btn { color: var(--ink); }
+.voice-search-popover .btn.solid { color: var(--paper); }
+.voice-search-popover .voice-options { flex-direction: column; }
+.voice-entry { margin-left: 4px; }
+@media (max-width: 700px) { .voice-search-popover { left: auto; right: -10px; } }

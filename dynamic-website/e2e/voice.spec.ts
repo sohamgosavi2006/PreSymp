@@ -1,0 +1,135 @@
+import { expect, test, type Page, type Locator } from '@playwright/test'
+
+test.use({ launchOptions: { args: ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream'] } })
+
+async function record(panel: Locator) {
+  await panel.getByRole('checkbox').first().check()
+  await panel.getByRole('button', { name: 'Record voice', exact: true }).click()
+  await expect(panel.getByRole('button', { name: /Stop recording/ })).toBeEnabled()
+  await new Promise((resolve) => setTimeout(resolve, 700))
+  await panel.getByRole('button', { name: /Stop recording/ }).click()
+  await expect(panel.getByLabel('Recorded voice preview')).toBeVisible()
+}
+
+async function transcript(page: Page, panel: Locator, text: string) {
+  await page.route('**/api/voice/transcribe', async (route) => {
+    expect(route.request().postDataBuffer()?.length).toBeGreaterThan(500)
+    await route.fulfill({ json: { transcript: text, language_code: 'hi-IN' } })
+  })
+  await panel.getByRole('checkbox', { name: 'Send this clip to Sarvam for transcription.' }).check()
+  await panel.getByRole('button', { name: 'Transcribe with Sarvam' }).click()
+  await expect(panel.getByLabel('Review transcript')).toHaveValue(text)
+}
+
+test('recordings need consent, persist after reload, stay with their patient, and can be deleted', async ({ page }) => {
+  await page.goto('/#/patient/P-0417')
+  const panel = page.getByRole('region', { name: 'Patient voice messages' })
+  await expect(panel.getByRole('button', { name: 'Record voice', exact: true })).toBeDisabled()
+  await record(panel)
+  await expect(panel.getByRole('button', { name: 'Transcribe with Sarvam' })).toBeDisabled()
+  await panel.getByLabel('Review transcript').fill('Patient described the visit in their own words.')
+  await panel.getByRole('button', { name: 'Keep voice message', exact: true }).click()
+  await expect(panel.locator('.saved-voice')).toHaveCount(1)
+  await page.reload()
+  await expect(panel.locator('.saved-voice')).toContainText('Patient described the visit')
+  await expect(panel.getByLabel('Saved voice message')).toBeVisible()
+  const [download] = await Promise.all([page.waitForEvent('download'), panel.getByRole('button', { name: 'Download', exact: true }).click()])
+  expect(download.suggestedFilename()).toMatch(/^patient-voice-P-0417-/)
+  await page.goto('/#/patient/P-0288')
+  await expect(panel.locator('.saved-voice')).toHaveCount(0)
+  await page.goto('/#/patient/P-0417')
+  await panel.getByRole('button', { name: 'Delete…' }).click()
+  await panel.getByRole('button', { name: 'Delete recording' }).click()
+  await expect(panel.locator('.saved-voice')).toHaveCount(0)
+  await page.reload()
+  await expect(panel.locator('.saved-voice')).toHaveCount(0)
+})
+
+test('voice search reviews a transcript before populating patient search', async ({ page }) => {
+  await page.goto('/#/day')
+  await page.getByRole('button', { name: 'Voice search', exact: true }).click()
+  const panel = page.getByRole('dialog', { name: 'Voice search' })
+  await record(panel)
+  await transcript(page, panel, 'Kabita')
+  await expect(page.getByRole('searchbox', { name: 'Search patients' })).toHaveValue('')
+  await panel.getByRole('button', { name: 'Search these words' }).click()
+  await expect(page.getByRole('searchbox', { name: 'Search patients' })).toHaveValue('Kabita')
+  await expect(page.locator('.hits')).toContainText('Kabita Banerjee')
+})
+
+test('card voice note is reviewed before insertion and changing it clears print approval', async ({ page }) => {
+  await page.goto('/#/card/P-0417')
+  await page.getByTestId('approve').click()
+  const panel = page.getByRole('region', { name: 'Card voice note' })
+  await record(panel)
+  await transcript(page, panel, 'अगली बार पुराने कागज़ साथ लाएँ।')
+  await expect(page.getByLabel("Doctor's note (printed as typed)")).toHaveValue('')
+  await panel.getByRole('button', { name: 'Use as card note' }).click()
+  await expect(page.locator('.fcard .note')).toHaveText('अगली बार पुराने कागज़ साथ लाएँ।')
+  await expect(page.getByTestId('print')).toBeDisabled()
+  await panel.getByRole('button', { name: 'Keep voice message', exact: true }).click()
+  await page.reload()
+  await expect(panel.getByLabel('Saved voice message')).toBeVisible()
+  await panel.getByRole('button', { name: 'Use saved transcript as card note' }).click()
+  await expect(page.locator('.fcard .note')).toHaveText('अगली बार पुराने कागज़ साथ लाएँ।')
+  await page.goto('/#/patient/P-0417')
+  await expect(page.locator('.saved-voice')).toHaveCount(0)
+})
+
+test('Sarvam playback needs consent, speaks the visible card, downloads audio and invalidates on edits', async ({ page }) => {
+  let sent = ''
+  await page.route('**/api/voice/speak', async (route) => {
+    const body = route.request().postDataJSON()
+    expect(body.consent).toBe(true)
+    expect(body.language_code).toBe('bn-IN')
+    sent = body.text
+    await route.fulfill({ json: { audios: ['UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA='] } })
+  })
+  await page.goto('/#/card/P-0417')
+  const listen = page.getByRole('button', { name: 'Listen with Sarvam' })
+  await expect(listen).toBeDisabled()
+  await page.getByRole('checkbox', { name: 'Allow this text to be sent to Sarvam for speech.' }).check()
+  await listen.click()
+  await expect(page.getByLabel('Sarvam spoken note')).toBeVisible()
+  expect(sent).toContain('ফলো-আপ কার্ড')
+  expect(sent).toContain('P-0417')
+  const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Download spoken note' }).click()])
+  expect(download.suggestedFilename()).toBe('follow-up-P-0417-bn.wav')
+  await page.getByLabel("Doctor's note (printed as typed)").fill('A new note')
+  await expect(page.getByLabel('Sarvam spoken note')).toHaveCount(0)
+  await page.screenshot({ path: 'shots/card-voice.png', fullPage: true })
+})
+
+test('failed transcription preserves the recording for local saving', async ({ page }) => {
+  await page.route('**/api/voice/transcribe', (route) => route.fulfill({ status: 503, json: { error: 'Sarvam is not connected. Recording still works.' } }))
+  await page.goto('/#/patient/P-0417')
+  const panel = page.getByRole('region', { name: 'Patient voice messages' })
+  await record(panel)
+  await panel.getByRole('checkbox', { name: 'Send this clip to Sarvam for transcription.' }).check()
+  await panel.getByRole('button', { name: 'Transcribe with Sarvam' }).click()
+  await expect(panel.getByRole('status')).toContainText('Sarvam is not connected')
+  await expect(panel.getByLabel('Recorded voice preview')).toBeVisible()
+  await panel.getByRole('button', { name: 'Keep voice message', exact: true }).click()
+  await expect(panel.locator('.saved-voice')).toHaveCount(1)
+})
+
+test('microphone refusal shows a clear retry path', async ({ page }) => {
+  await page.addInitScript(() => { navigator.mediaDevices.getUserMedia = async () => { throw new DOMException('Denied', 'NotAllowedError') } })
+  await page.goto('/#/patient/P-0417')
+  const panel = page.getByRole('region', { name: 'Patient voice messages' })
+  await panel.getByRole('checkbox').first().check()
+  await panel.getByRole('button', { name: 'Record voice', exact: true }).click()
+  await expect(panel.getByRole('status')).toContainText('Microphone permission was not granted')
+  await expect(panel.getByRole('button', { name: 'Record voice', exact: true })).toBeEnabled()
+})
+
+test('changing patient stops the microphone and does not carry an unsaved clip', async ({ page }) => {
+  await page.goto('/#/patient/P-0417')
+  const panel = page.getByRole('region', { name: 'Patient voice messages' })
+  await panel.getByRole('checkbox').first().check()
+  await panel.getByRole('button', { name: 'Record voice', exact: true }).click()
+  await expect(panel.getByRole('button', { name: /Stop recording/ })).toBeVisible()
+  await page.evaluate(() => { location.hash = '#/patient/P-0288' })
+  await expect(panel.getByRole('button', { name: 'Record voice', exact: true })).toBeVisible()
+  await expect(panel.getByLabel('Recorded voice preview')).toHaveCount(0)
+})

@@ -1,0 +1,16 @@
+/* design tokens, SPEC.md section 2. no status colours: late, soon and later are told apart by shape and weight */
+:root {
+  --paper: #FAFAF7;
+  --ink: #1A1A1A;
+  --body: #3D3D3D;
+  --muted: #6B6B6B; /* SPEC says #7A7A7A; darkened a little so it passes AA on paper */
+  --rule: #D9D9D4;
+  --panel: #F0F0EB;
+  --accent: #1F5560;
+  --accent-tint: #E3EEF0;
+  --card: #FFFFFF;
+  --marker: #FFE45C; /* marker-pen yellow. only for the highlight drawn ON a source document, inside the viewer */
+  --line: #BDBDB6; /* a grey between rule and muted, for control borders */
+  --sans: 'Atkinson Hyperlegible', 'Segoe UI', system-ui, sans-serif;
+  --ease: 0.18s ease-out;
+}

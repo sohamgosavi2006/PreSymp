@@ -1,0 +1,36 @@
+/* follow-up card. the sheet is 128 x 186 mm, the area inside a 10 mm A5 margin, so the screen shows what prints.
+   sizes are in pt for the same reason. the Atkinson font comes first for Latin; the Noto families draw Hindi and Bengali. */
+.cardwrap.cardpage { grid-template-columns: 320px 128mm; justify-content: start; }
+.cardside .row .inl { display: flex; align-items: center; gap: 8px; }
+.cardside textarea { width: 100%; resize: vertical; font-size: 15px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--card); color: var(--ink); }
+.cardside input[type='date'] { font: inherit; font-size: 15px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--card); color: var(--ink); }
+.cardside .seg button, .cardside textarea { font-family: 'Atkinson Hyperlegible', 'Noto Sans Devanagari', 'Noto Sans Bengali', var(--sans); }
+.cardside .cap { margin: 0; }
+.cardside > .cap, .cardside > .btn.quiet { margin-top: 8px; }
+
+.cardwrap .fcard.fsheet {
+  font-family: 'Atkinson Hyperlegible', 'Noto Sans Devanagari', 'Noto Sans Bengali', var(--sans);
+  width: 128mm; max-width: 100%; min-height: 186mm; padding: 7mm 8mm; margin: 0;
+  display: flex; flex-direction: column;
+  background: var(--card); color: var(--ink); border: 1px solid var(--ink);
+  font-size: 10pt; line-height: 1.45;
+}
+.cardwrap .fcard.fsheet:lang(bn) { font-family: 'Atkinson Hyperlegible', 'Noto Sans Bengali', 'Noto Sans Devanagari', var(--sans); }
+.fcard.fsheet .clinic { font-size: 15pt; font-weight: 700; line-height: 1.2; margin: 0; }
+.fcard.fsheet .small { font-size: 9pt; color: var(--body); margin: 2px 0 0; }
+.fcard.fsheet header { border-bottom: 1px solid var(--ink); padding-bottom: 2.5mm; }
+.cardwrap .fcard.fsheet h2.ctitle { font-family: inherit; font-size: 13pt; font-weight: 700; line-height: 1.3; text-transform: none; letter-spacing: 0; border: 0; margin: 3mm 0 1mm; padding: 0; }
+.cardwrap .fcard.fsheet h3 { font-family: inherit; font-size: 9pt; font-weight: 700; line-height: 1.4; text-transform: uppercase; letter-spacing: 0.04em; margin: 3mm 0 1mm; padding-bottom: 1px; border-bottom: 1px solid var(--ink); color: var(--ink); }
+.cardwrap .fcard.fsheet p { margin: 1px 0; font-size: 10pt; }
+.cardwrap .fcard.fsheet ul { margin: 0; padding: 0; list-style: none; }
+.cardwrap .fcard.fsheet li { display: flex; justify-content: space-between; align-items: baseline; gap: 4mm; padding: 1px 0; font-size: 10pt; }
+.fcard.fsheet li .when { white-space: nowrap; font-weight: 700; color: var(--ink); text-align: right; }
+.cardwrap .fcard.fsheet .who { margin-top: 0; }
+.cardwrap .fcard.fsheet .appt { font-weight: 700; }
+.cardwrap .fcard.fsheet .none { color: var(--body); }
+.cardwrap .fcard.fsheet .note { white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
+.cardwrap .fcard.fsheet .foot { margin-top: auto; padding-top: 3mm; font-size: 9pt; }
+
+@media (max-width: 900px) {
+  .cardwrap.cardpage { grid-template-columns: 1fr; }
+}

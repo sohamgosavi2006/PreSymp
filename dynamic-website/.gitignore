@@ -1,0 +1,10 @@
+node_modules
+dist
+shots
+test-results
+playwright-report
+public/tesseract
+.env
+.env.*
+!.env.example
+deployment
